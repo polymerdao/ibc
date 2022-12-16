@@ -1,5 +1,5 @@
 ---
-ics: 32
+ics: 33
 title: Multi-hop Channel
 stage: draft
 required-by: 4
@@ -42,7 +42,7 @@ Associated definitions are as defined in referenced prior standards (where the f
 
 The bulk of the spec will be around proof generation and verification. IBC connections remain unchanged. Addiitonally, channel handshake and packet message types as well as general round trip messaging semantics and flow will remain the same. There is additional work on the verifier side on the destination chain as well as the relayers who need to query for proofs.
 
-Messages passed over multiple hops require proof of the connection path from source chain to destination chain as well as the packet commitment on the source chain. The connection path is proven by verifying the connection state and consensus state of each connection in the path to the destination chain. On a high level, this can be thought of as a channel path proof chain where the destination chain can prove a key/value on the source chain by iteratively proving each connection and consensus state in the channel path starting with the consensus state known associated with the final client/connection on the destination chain. Each subsequent consensus state and connection is proven until the source chain's consensus state is proven which can then be used to prove the desired key/value on the source chain.
+Messages passed over multiple hops require proof of the connection path from source chain to destination chain as well as the packet commitment on the source chain. The connection path is proven by verifying the connection state and consensus state of each connection in the path to the destination chain. On a high level, this can be thought of as a channel path proof chain where the destination chain can prove a key/value on the source chain by iteratively proving each connection and consensus state in the channel path starting with the consensus state associated with the final client on the destination chain. Each subsequent consensus state and connection is proven until the source chain's consensus state is proven which can then be used to prove the desired key/value on the source chain.
 
 ### Channel Handshake and Packet Messages
 
@@ -78,7 +78,6 @@ Proof steps.
 ![proof_steps.png](proof_steps.png)
 
 Pseudocode proof generation for a channel between `N` chains `C[0] --> C[i] --> C[N]`
-
 
 ```go
 
@@ -208,38 +207,6 @@ func GenerateConnectionProofs(chains []*Chain) []*ProofData {
     }
     return proofs       
 }
-```
-
-```typescript
-function queryBatchProof(client: Client, keys: []string) {
-    stateProofs = []
-    for key in keys {
-        resp = client.QueryABCI(abci.RequestQuery{
-            Path:   "store/ibc/key",
-            Height: height,
-            Data:   key,
-            Prove:  true,
-        })
-        proof = ConvertProofs(resp.ProofOps)
-        stateProofs = append(stateProofs, proof.Proofs[0])
-    }
-    return CombineProofs(stateProofs)
-}
-
-// Query B & A for connectionState and consensusState kvs 
-keys = [
-    "ibc/connections/{id}",
-    "ibc/consensusStates/{height}",
-]
-batchStateProofB = queryBatchProof(clientB, keys)
-batchStateProofA = queryBatchProof(clientA, keys)
-
-// Query A for channel handshake and/or packet messages
-keys = [
-    "ibc/channelEnds/ports/{portID}/channels/{channelID}",
-    "ibc/commitments/ports/{portID}/channels/{channelID}/packets/{sequence}"
-]
-batchMessageProofA = queryBatchProof(clientA, keys)
 ```
 
 Pseudocode proof verification of a channel between chains `A -> B -> C` .
