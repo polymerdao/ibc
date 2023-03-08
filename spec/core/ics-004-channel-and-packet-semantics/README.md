@@ -355,7 +355,6 @@ function chanOpenTry(
 
     if (connectionHops.length > 1) {
       key = host.ChannelPath(counterparty.PortId, counterparty.ChannelId)
-
       abortTransactionUnless(connection.verifyMultihopProof(
         connection,
         proofHeight,
@@ -405,7 +404,7 @@ function chanOpenAck(
     abortTransactionUnless(connection.state === OPEN)
 
     let counterpartyHops: []string = []
-    if (connectionHops.length > 1) {
+    if (channel.connectionHops.length > 1) {
       counterpartyHops = getCounterPartyHops(proofTry)
     } else {
       counterpartyHops = [connection.counterpartyConnectionIdentifier]
@@ -414,18 +413,14 @@ function chanOpenAck(
     expected = ChannelEnd{TRYOPEN, channel.order, portIdentifier,
                           channelIdentifier, counterpartyHops, counterpartyVersion}
 
-    if (connectionHops.length > 1) {
-      consensusState = provableStore.get(consensusStatePath(connection.ClientId, proofHeight))
+    if (channel.connectionHops.length > 1) {
       key = host.ChannelPath(counterparty.PortId, counterparty.ChannelId)
-      counterpartyConnectionEnd = abortTransactionUnless(getMultihopConnectionEnd(proofTry))
-      prefix = counterpartyConnectionEnd.GetCounterparty().GetPrefix()
-
       abortTransactionUnless(connection.verifyMultihopProof(
-        consensusState,
-        connectionHops,
+        connection,
+        proofHeight,
         proofTry,
-        prefix,
-        key
+        channel.connectionHops,
+        key,
         expected))
     } else {
       abortTransactionUnless(connection.verifyChannelState(
@@ -472,16 +467,12 @@ function chanOpenConfirm(
                           channelIdentifier, counterpartyHops, channel.version}
 
     if (connectionHops.length > 1) {
-      consensusState = provableStore.get(consensusStatePath(connection.ClientId, proofHeight))
       key = host.ChannelPath(counterparty.PortId, counterparty.ChannelId)
-      counterpartyConnectionEnd = abortTransactionUnless(getMultihopConnectionEnd(proofAck))
-      prefix = counterpartyConnectionEnd.GetCounterparty().GetPrefix()
-
-      abortTransactionUnless(connection.verifyMultihopProof(
-        consensusState,
-        connectionHops,
-        proofTry,
-        prefix,
+      abortTransactionUnless(connection.verifyMultihopMembership(
+        connection,
+        proofHeight,
+        proofAck,
+        channel.connectionHops,
         key
         expected))
     } else {
@@ -561,16 +552,13 @@ function chanCloseConfirm(
                           channelIdentifier, counterpartyHops, channel.version}
 
     if (connectionHops.length > 1) {
-      consensusState = provableStore.get(consensusStatePath(connection.ClientId, proofHeight))
       key = host.ChannelPath(counterparty.PortId, counterparty.ChannelId)
-      counterpartyConnectionEnd = abortTransactionUnless(getMultihopConnectionEnd(proofInit))
-      prefix = counterpartyConnectionEnd.GetCounterparty().GetPrefix()
 
-      abortTransactionUnless(connection.verifyMultihopProof(
-        consensusState,
-        connectionHops,
-        proofTry,
-        prefix,
+      abortTransactionUnless(connection.verifyMultihopMembership(
+        connection,
+        proofHeight,
+        proofInit,
+        channel.connectionHops,
         key
         expected))
     } else {
@@ -637,7 +625,7 @@ function chanCloseFrozen(
     // ensure client state is frozen by checking FrozenHeight
     abortTransactionUnless(frozenClientState.FrozenHeight !== Height(0,0)
 
-    abortTransactionUnless(connection.verifyMultihopProof(
+    abortTransactionUnless(connection.verifyMultihopMembership(
       connection,
       proofHeight,
       proofFrozen,
@@ -801,7 +789,7 @@ function recvPacket(
 
     if (len(channel.connectionHops) > 1) {
       key = host.PacketCommitmentPath(packet.GetSourcePort(), packet.GetSourceChannel(), packet.GetSequence())
-      abortTransactionUnless(connection.verifyMultihopProof(
+      abortTransactionUnless(connection.verifyMultihopMembership(
         connection,
         proofHeight,
         proof,
