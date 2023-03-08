@@ -95,6 +95,7 @@ enum ChannelState {
   TRYOPEN,
   OPEN,
   CLOSED,
+  FROZEN,
 }
 ```
 
@@ -102,6 +103,7 @@ enum ChannelState {
 - A channel end in `TRYOPEN` state has acknowledged the handshake step on the counterparty chain.
 - A channel end in `OPEN` state has completed the handshake and is ready to send and receive packets.
 - A channel end in `CLOSED` state has been closed and can no longer be used to send or receive packets.
+- A channel end in `FROZEN` state is frozen and can no longer be used to send or receive packets.
 
 A `Packet`, in the interblockchain communication protocol, is a particular interface defined as follows:
 
@@ -278,6 +280,7 @@ If not provided, the default `validateChannelIdentifier` function will always re
 | --------- | ---------------- | ---------------- | ------------------ | ---------------------- |
 | Actor     | ChanCloseInit    | A                | (OPEN, OPEN)       | (CLOSED, OPEN)         |
 | Relayer   | ChanCloseConfirm | B                | (CLOSED, OPEN)     | (CLOSED, CLOSED)       |
+| Relayer   | ChanCloseFrozen  | A or B           | (OPEN, OPEN)       | (FROZEN, FROZEN)       |
 
 ##### Opening handshake
 
