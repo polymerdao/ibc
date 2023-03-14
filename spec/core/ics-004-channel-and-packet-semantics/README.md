@@ -355,7 +355,7 @@ function chanOpenTry(
 
     if (connectionHops.length > 1) {
       key = host.ChannelPath(counterparty.PortId, counterparty.ChannelId)
-      abortTransactionUnless(connection.verifyMultihopProof(
+      abortTransactionUnless(connection.verifyMultihopMembership(
         connection,
         proofHeight,
         proofInit,
