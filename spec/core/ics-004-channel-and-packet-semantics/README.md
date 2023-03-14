@@ -987,7 +987,7 @@ function acknowledgePacket(
     // abort transaction unless correct acknowledgement on counterparty chain
     if (len(channel.connectionHops) > 1) {
       key = host.PacketAcknowledgementPath(packet.GetDestPort(), packet.GetDestChannel(), packet.GetSequence())
-      abortTransactionUnless(connection.VerifyMultihopProof(
+      abortTransactionUnless(connection.verifyMultihopMembership(
         connection,
         proofHeight,
         proof,
