@@ -258,7 +258,7 @@ function verifyMultihopMembership(
     // verify maximum delay period has passed
     timeDelay, blockDelay = abortTransactionUnless(getMaximumDelayPeriod(proof, connection))
     abortTransactionUnless(verifyDelayPeriodPassed(height, timeDelay, blockDelay))
-    
+
     return multihop.VerifyMultihopMembership(consensusState, connectionHops, proof, prefix, key, value) // see ics-033
 }
 
@@ -279,7 +279,7 @@ function verifyMultihopNonMembership(
     // verify maximum delay period has passed
     timeDelay, blockDelay = abortTransactionUnless(getMaximumDelayPeriod(proof, connection))
     abortTransactionUnless(verifyDelayPeriodPassed(height, timeDelay, blockDelay))
-    
+
     return multihop.VerifyMultihopNonMembership(consensusState, connectionHops, proof, prefix, key) // see ics-033
 }
 
@@ -327,7 +327,7 @@ The validation function `validateConnectionIdentifier` MAY be provided.
 type validateConnectionIdentifier = (id: Identifier) => boolean
 ```
 
-If not provided, the default `validateConnectionIdentifier` function will always return `true`. 
+If not provided, the default `validateConnectionIdentifier` function will always return `true`.
 
 #### Versioning
 
@@ -346,7 +346,7 @@ specifies IBC 1.0.0.
 
 The `features` field specifies a list of features compatible with the specified
 identifier. The values `"ORDER_UNORDERED"` and `"ORDER_ORDERED"` specify
-unordered and ordered channels, respectively. 
+unordered and ordered channels, respectively.
 
 Host state machine MUST utilise the version data to negotiate encodings,
 priorities, or connection-specific metadata related to custom logic on top of
@@ -412,7 +412,7 @@ function connOpenInit(
 
     abortTransactionUnless(queryClientState(clientIdentifier) !== null)
     abortTransactionUnless(provableStore.get(connectionPath(identifier)) == null)
-    
+
     state = INIT
     if version != "" {
       // manually selected version must be one we can support
@@ -449,7 +449,7 @@ function connOpenTry(
 ) {
     // generate a new identifier
     identifier = generateIdentifier()
-    
+
     abortTransactionUnless(queryClientState(clientIdentifier) !== null)
     abortTransactionUnless(validateSelfClient(clientState))
     abortTransactionUnless(consensusHeight < getCurrentHeight())
