@@ -1108,7 +1108,7 @@ We pass the `relayer` address just as in [Receiving packets](#receiving-packets)
 ```typescript
 function timeoutPacket(
   packet: OpaquePacket,
-  proof: CommitmentProof,
+  proof: CommitmentProof | MultihopProof, // TODO: update with multihop proof logic
   proofHeight: Height,
   nextSequenceRecv: Maybe<uint64>,
   relayer: string): Packet {
@@ -1216,8 +1216,8 @@ We pass the `relayer` address just as in [Receiving packets](#receiving-packets)
 ```typescript
 function timeoutOnClose(
   packet: Packet,
-  proof: CommitmentProof,
-  proofClosed: CommitmentProof,
+  proof: CommitmentProof | MultihopProof, // TODO: update with multihop proof logic
+  proofClosed: CommitmentProof | MultihopProof, // TODO: update with multihop proof logic
   proofHeight: Height,
   nextSequenceRecv: Maybe<uint64>,
   relayer: string): Packet {
